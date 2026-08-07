@@ -3,7 +3,7 @@ const path=require('node:path');
 
 const SOURCE_COMMIT=process.env.SOURCE_COMMIT||process.env.VERCEL_GIT_COMMIT_SHA||'main';
 const STATIC_FILES=[
-  'index.html','styles.css','script.js','season.css','season.js','launch.css','launch.js','viral.css','viral.js',
+  'index.html','styles.css','script.js','season.css','season.js','launch.css','launch.js','viral.css','viral.js','attribution.js',
   'admin.html','admin.js','press.html','privacy.html','thanks.html','robots.txt','sitemap.xml'
 ];
 
@@ -28,11 +28,12 @@ function injectSocialMeta(){
   fs.writeFileSync(file,html);
 }
 
-function injectViralAssets(){
+function injectGrowthAssets(){
   const file=path.join('dist','index.html');
   let html=fs.readFileSync(file,'utf8');
   if(!html.includes('href="/viral.css"'))html=html.replace('</head>','  <link rel="stylesheet" href="/viral.css" />\n</head>');
   if(!html.includes('src="/viral.js"'))html=html.replace('</body>','  <script src="/viral.js" defer></script>\n</body>');
+  if(!html.includes('src="/attribution.js"'))html=html.replace('</body>','  <script src="/attribution.js" defer></script>\n</body>');
   fs.writeFileSync(file,html);
 }
 
@@ -43,8 +44,8 @@ function injectViralAssets(){
     console.log('built',file);
   }
   injectSocialMeta();
-  injectViralAssets();
-  console.log('injected social metadata and milestone sharing assets');
+  injectGrowthAssets();
+  console.log('injected social metadata, milestone sharing and channel attribution assets');
 })().catch(error=>{
   console.error(error);
   process.exit(1);
