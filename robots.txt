@@ -1,6 +1,4 @@
 User-agent: *
-Allow: /
-Disallow: /admin
-Disallow: /api/
+Disallow: /
 
-Sitemap: https://give-lewy-2020.vercel.app/sitemap.xml
+# Prelaunch: search indexing will be enabled on launch day.
