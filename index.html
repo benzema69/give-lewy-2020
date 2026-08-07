@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Give Lewy 2020 — Pétition</title>
+  <meta name="description" content="Une pétition mondiale pour demander une reconnaissance rétroactive du Ballon d’Or 2020 pour Robert Lewandowski." />
+  <meta property="og:title" content="Give Lewy 2020" />
+  <meta property="og:description" content="2020 est resté sans Ballon d’Or. Demandons une reconnaissance rétroactive pour Robert Lewandowski." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#090909" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="shell nav">
+    <a class="brand" href="/" aria-label="Give Lewy 2020">GIVE <span>LEWY</span> 2020</a>
+    <nav class="navlinks" aria-label="Navigation principale">
+      <a href="#pourquoi" data-i18n="navWhy">Pourquoi</a>
+      <a href="#faits" data-i18n="navFacts">Les faits</a>
+      <a href="#partager" data-i18n="navShare">Partager</a>
+    </nav>
+    <button id="lang" class="lang" type="button" aria-label="Changer de langue">EN</button>
+  </header>
+
+  <main>
+    <section class="shell hero">
+      <span class="kicker" data-i18n="kicker">PÉTITION MONDIALE · OBJECTIF 100 MILLIONS</span>
+      <h1 data-i18n-html="headline">2020 ne devrait pas rester <span class="gold">une page blanche.</span></h1>
+      <p class="lead" data-i18n="lead">Nous demandons une reconnaissance rétroactive du Ballon d’Or 2020 pour Robert Lewandowski — sans retirer le trophée de qui que ce soit, puisque l’édition 2020 n’a pas été attribuée.</p>
+
+      <div class="hero-grid">
+        <div class="card count-card">
+          <div id="count" class="counter">0</div>
+          <div class="counter-label" data-i18n="verified">signatures comptées</div>
+          <div class="progress" aria-label="Progression vers l’objectif"><div id="progressBar"></div></div>
+          <div class="goal"><span id="percent">0%</span><span data-i18n="goal">Objectif : 100 000 000</span></div>
+
+          <div class="milestones" aria-label="Paliers de campagne">
+            <span>10K</span><span>100K</span><span>1M</span><span>10M</span><span>100M</span>
+          </div>
+
+          <div class="fact-grid">
+            <div class="fact"><strong>55</strong><span data-i18n="fact55">buts en 47 matchs avec le Bayern en 2019/20</span></div>
+            <div class="fact"><strong>15</strong><span data-i18n="fact15">buts en Ligue des champions 2019/20</span></div>
+            <div class="fact"><strong>3</strong><span data-i18n="fact3">trophées majeurs : Bundesliga, Coupe d’Allemagne, Ligue des champions</span></div>
+          </div>
+        </div>
+
+        <form id="petitionForm" class="card form">
+          <h2 data-i18n="signTitle">Signe la pétition</h2>
+          <p data-i18n="signSub">1 clic suffit. Aucun compte. L’e-mail est facultatif et renforce simplement la fiabilité de ta signature.</p>
+          <div class="fields">
+            <label><span data-i18n="nameLabel">Prénom et nom · facultatif</span><input name="name" maxlength="80" autocomplete="name" /></label>
+            <label><span data-i18n="emailLabel">E-mail · recommandé, facultatif</span><input name="email" type="email" maxlength="254" autocomplete="email" /><small data-i18n="emailHint">Si tu le renseignes, tu pourras le confirmer pour renforcer ta signature.</small></label>
+            <label><span data-i18n="countryLabel">Pays · facultatif</span>
+              <select name="country" autocomplete="country-name">
+                <option value="" selected data-i18n="countryPick">Ne pas préciser</option>
+                <option>France</option><option>Suisse</option><option>Belgique</option><option>Pologne</option><option>Allemagne</option><option>Espagne</option><option>Royaume-Uni</option><option>Italie</option><option>Portugal</option><option>États-Unis</option><option>Canada</option><option>Brésil</option><option>Argentine</option><option>Maroc</option><option>Algérie</option><option>Tunisie</option><option>Sénégal</option><option>Côte d’Ivoire</option><option>Nigeria</option><option>Autre</option>
+              </select>
+            </label>
+            <label class="check"><input type="checkbox" name="publicName" /><span data-i18n="publicName">Si je donne mon nom, j’accepte qu’il puisse apparaître dans une liste publique de soutiens.</span></label>
+            <label class="check"><input type="checkbox" name="updatesOptIn" /><span data-i18n="updatesOptIn">Si je donne mon e-mail, je souhaite recevoir les grandes étapes de la campagne. Désinscription à tout moment.</span></label>
+            <div class="legal" data-i18n-html="consent">En cliquant sur « Je signe », tu acceptes le traitement des informations que tu fournis pour gérer la pétition et lutter contre les abus. L’e-mail n’est pas obligatoire. <a href="/confidentialite" target="_blank">Confidentialité.</a></div>
+            <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <div id="challenge" class="challenge" hidden><div id="turnstileWidget"></div></div>
+            <button id="submitBtn" class="btn" type="submit" data-i18n="signBtn">JE SIGNE POUR LEWY 2020</button>
+          </div>
+          <div id="status" class="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </section>
+
+    <section id="pourquoi" class="shell section two">
+      <div>
+        <span class="eyebrow" data-i18n="requestEyebrow">LA DEMANDE</span>
+        <h2 data-i18n="requestTitle">Ce qu’on demande.</h2>
+        <p data-i18n-html="requestP1">Pas de réécriture d’un vote. Pas de trophée retiré à un autre joueur. Nous demandons aux organisateurs du Ballon d’Or d’étudier une attribution rétroactive, exceptionnelle et explicitement datée <strong>« Ballon d’Or 2020 »</strong>, à Robert Lewandowski.</p>
+        <p data-i18n="requestP2">Le but est simple : transformer une année officiellement sans lauréat en reconnaissance historique d’une saison hors norme.</p>
+      </div>
+      <div class="card quote-card">
+        <div class="quote" data-i18n="quote">« Une saison comme celle-là n’est jamais garantie deux fois dans une carrière. »</div>
+        <p data-i18n="independent">Cette campagne est une initiative indépendante de supporters. Elle n’est ni affiliée ni approuvée par France Football, L’Équipe, l’UEFA, la FIFA, le Bayern Munich ou Robert Lewandowski.</p>
+      </div>
+    </section>
+
+    <section id="faits" class="shell section">
+      <span class="eyebrow" data-i18n="factsEyebrow">BASE FACTUELLE</span>
+      <h2 data-i18n="factsTitle">Les faits derrière la campagne.</h2>
+      <div class="timeline">
+        <article class="item"><strong data-i18n="f1t">Le Ballon d’Or 2020 n’a pas été attribué.</strong><span data-i18n="f1b">Le palmarès officiel du Ballon d’Or affiche « No Ballon d’Or » pour 2020, entre Messi 2019 et Messi 2021.</span></article>
+        <article class="item"><strong data-i18n="f2t">Lewandowski a dominé la saison 2019/20.</strong><span data-i18n="f2b">L’UEFA recense 55 buts en 47 matchs avec le Bayern, dont 15 en Ligue des champions, lors d’une saison conclue par le triplé.</span></article>
+        <article class="item"><strong data-i18n="f3t">Il a été reconnu par d’autres grandes institutions.</strong><span data-i18n="f3b">Lewandowski a remporté le prix UEFA du Joueur de l’année 2019/20 et The Best FIFA Men’s Player 2020.</span></article>
+      </div>
+      <div class="source-row">
+        <a href="https://ballondor.com/winners?category=history-text" target="_blank" rel="noreferrer">Ballon d’Or — palmarès officiel</a>
+        <a href="https://www.uefa.com/uefachampionsleague/news/0261-1065a2b7cf1c-c4b22a7d12f9-1000--men-s-player-of-the-year/" target="_blank" rel="noreferrer">UEFA — saison 2019/20</a>
+        <a href="https://inside.fifa.com/en/media-releases/en/news/lucy-bronze-and-robert-lewandowski-are-the-best-of-2020" target="_blank" rel="noreferrer">FIFA — The Best 2020</a>
+      </div>
+    </section>
+
+    <section id="partager" class="shell section two">
+      <div>
+        <span class="eyebrow" data-i18n="movementEyebrow">FAIRE GRANDIR LE MOUVEMENT</span>
+        <h2 data-i18n="movementTitle">100 millions, ça ne se fait pas seul.</h2>
+        <p data-i18n="movementBody">On veut une campagne internationale : supporters du Bayern, de Pologne, fans de football, créateurs TikTok/YouTube/X, anciens joueurs et médias. Le message doit rester factuel et positif : reconnaître 2020, pas attaquer d’autres lauréats.</p>
+      </div>
+      <div class="card share-card">
+        <h3 data-i18n="shareTitle">Partager la campagne</h3>
+        <div class="share-row">
+          <a id="shareX" class="share" target="_blank" rel="noreferrer">X / Twitter</a>
+          <a id="shareWa" class="share" target="_blank" rel="noreferrer">WhatsApp</a>
+          <button id="copyLink" class="share" type="button" data-i18n="copy">Copier le lien</button>
+        </div>
+        <p class="small" data-i18n="hashtag">Hashtag proposé : #GiveLewy2020</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="shell">
+      <div class="disclaimer"><strong data-i18n="transparency">Transparence :</strong> <span data-i18n="footerText">cette pétition est indépendante. Le compteur doit représenter uniquement des signatures acceptées par les protections anti-abus. Les données ne doivent pas être vendues ni utilisées à des fins publicitaires.</span> <a href="/confidentialite" data-i18n="privacy">Confidentialité</a>.</div>
+    </div>
+  </footer>
+  <script src="/script.js" defer></script>
+</body>
+</html>
