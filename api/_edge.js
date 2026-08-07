@@ -15,7 +15,6 @@ function validSession(v){return typeof v==='string'&&v.length>=20&&v.length<=200
 function sessionCookie(value,maxAge=60*60*24*180){
   return `${SESSION_COOKIE}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`;
 }
-
 function bodyOf(req){
   if(req.method==='GET'||req.method==='HEAD')return undefined;
   if(req.body==null)return undefined;
@@ -38,12 +37,12 @@ async function proxy(req,res,action){
       'x-client-ip':String(req.headers['x-forwarded-for']||req.headers['x-real-ip']||'').split(',')[0].trim(),
       'user-agent':String(req.headers['user-agent']||''),
     };
+    if(req.headers.authorization)headers.authorization=String(req.headers.authorization);
     if(sessionId){
       headers['x-petition-session']=sessionId;
       headers.cookie=`${SESSION_COOKIE}=${encodeURIComponent(sessionId)}`;
     }
     const r=await fetch(`${EDGE_URL}?${qs}`,{method:req.method,headers,body:bodyOf(req),redirect:'manual'});
-    // Session cookies belong to the public Vercel domain. Never relay Supabase/Cloudflare Set-Cookie headers.
     if(action==='sign'&&sessionId)res.setHeader('Set-Cookie',sessionCookie(sessionId));
     if(action==='delete-session')res.setHeader('Set-Cookie',sessionCookie('',0));
     for(const h of ['location','cache-control']){
