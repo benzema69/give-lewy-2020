@@ -25,14 +25,6 @@ create index if not exists signatures_ip_hash_idx on public.signatures (ip_hash)
 create index if not exists signatures_user_agent_hash_idx on public.signatures (user_agent_hash);
 create index if not exists signatures_email_verified_idx on public.signatures (email_verified_at) where email_verified_at is not null;
 
--- Privacy design:
--- - email/name/country are optional
--- - IPs are never stored raw; only a daily rotating HMAC is stored
--- - the session cookie is random and HttpOnly; only its HMAC is stored
--- - marketing/campaign updates require the separate updates_opt_in flag
--- - only status='accepted' signatures are shown in the public counter
-
-
 create table if not exists public.petition_stats (
   id text primary key,
   accepted_count bigint not null default 0,
@@ -41,19 +33,15 @@ create table if not exists public.petition_stats (
 );
 
 insert into public.petition_stats (id, accepted_count, email_verified_count)
-select
-  'global',
-  count(*) filter (where status='accepted'),
-  count(*) filter (where status='accepted' and email_verified_at is not null)
+select 'global', count(*) filter (where status='accepted'), count(*) filter (where status='accepted' and email_verified_at is not null)
 from public.signatures
-on conflict (id) do update set
-  accepted_count=excluded.accepted_count,
-  email_verified_count=excluded.email_verified_count,
-  updated_at=now();
+on conflict (id) do update set accepted_count=excluded.accepted_count, email_verified_count=excluded.email_verified_count, updated_at=now();
 
 create or replace function public.sync_petition_stats()
 returns trigger
 language plpgsql
+security invoker
+set search_path = public
 as $$
 declare
   old_accepted integer := 0;
@@ -69,18 +57,33 @@ begin
     new_accepted := case when NEW.status='accepted' then 1 else 0 end;
     new_verified := case when NEW.status='accepted' and NEW.email_verified_at is not null then 1 else 0 end;
   end if;
-
   update public.petition_stats
   set accepted_count=greatest(0,accepted_count + new_accepted - old_accepted),
       email_verified_count=greatest(0,email_verified_count + new_verified - old_verified),
       updated_at=now()
   where id='global';
-
   return case when TG_OP='DELETE' then OLD else NEW end;
 end;
 $$;
 
 drop trigger if exists signatures_stats_trigger on public.signatures;
-create trigger signatures_stats_trigger
-after insert or update or delete on public.signatures
-for each row execute function public.sync_petition_stats();
+create trigger signatures_stats_trigger after insert or update or delete on public.signatures for each row execute function public.sync_petition_stats();
+
+alter table public.signatures enable row level security;
+alter table public.petition_stats enable row level security;
+revoke all on table public.signatures from anon, authenticated;
+revoke all on table public.petition_stats from anon, authenticated;
+revoke execute on function public.sync_petition_stats() from public, anon, authenticated;
+create table if not exists public.petition_internal (
+  id text primary key,
+  hmac_salt text not null,
+  created_at timestamptz not null default now()
+);
+insert into public.petition_internal (id, hmac_salt)
+values ('global', gen_random_uuid()::text || gen_random_uuid()::text)
+on conflict (id) do nothing;
+alter table public.petition_internal enable row level security;
+revoke all on table public.petition_internal from anon, authenticated;
+create policy deny_anon_authenticated_signatures on public.signatures for all to anon, authenticated using (false) with check (false);
+create policy deny_anon_authenticated_petition_stats on public.petition_stats for all to anon, authenticated using (false) with check (false);
+create policy deny_anon_authenticated_petition_internal on public.petition_internal for all to anon, authenticated using (false) with check (false);

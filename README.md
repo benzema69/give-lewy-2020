@@ -1,73 +1,57 @@
 # Give Lewy 2020
 
-Fan-led petition website asking the Ballon d'Or organisers to consider retroactively awarding the unawarded 2020 edition to Robert Lewandowski.
+Fan-led petition asking the Ballon d'Or organisers to consider retroactively awarding the unawarded 2020 edition to Robert Lewandowski.
 
-## Product principle
+## Architecture
 
-Signing should feel almost frictionless **without making the public counter meaningless**.
+- **Vercel** serves the FR/EN landing page and thin proxy routes under `/api/*`.
+- **Supabase Edge Function `petition-api`** owns privileged database access. Supabase injects its secret API key into the function; no database admin key is stored in GitHub or Vercel.
+- **Supabase Postgres** stores signatures. RLS is enabled and `anon` / `authenticated` are explicitly denied direct table access.
+- The public counter is O(1), backed by `petition_stats` and maintained by a trigger.
 
-- A visitor can sign with one click: name, email and country are optional.
-- No account or password is required.
-- The browser receives a random `HttpOnly`, `Secure`, `SameSite=Lax` session cookie.
-- Only an HMAC of that session identifier is stored server-side.
-- Raw IP addresses are never stored. A daily rotating HMAC of the IP is used as one anti-abuse signal.
-- User-Agent HMAC, request velocity and optional email confirmation contribute to a risk score.
-- Medium-risk traffic can be challenged with Cloudflare Turnstile only when needed.
-- High-risk traffic is rejected or held out of the public counter.
-- Email is optional. Campaign-update consent is a separate, unchecked opt-in.
+## Signing model
 
-## What is included
+Signing is deliberately low-friction without making the counter meaningless:
 
-- Responsive FR/EN landing page
-- 100,000,000 signature goal
-- Low-friction one-click signing
-- Optional name, email and country
-- Optional email confirmation
-- Separate campaign-updates opt-in
-- Session-cookie duplicate protection
-- Daily rotating IP HMAC; no raw IP storage
-- User-Agent HMAC + velocity-based risk scoring
-- Adaptive Cloudflare Turnstile hook
-- `accepted` / `pending` / `rejected` moderation states
-- Public counter that counts only `accepted` signatures
-- O(1) public counter backed by an aggregate stats row maintained by a PostgreSQL trigger
-- Email deletion link + same-device session deletion
-- Honeypot bot field
-- Privacy policy starter
-- X / WhatsApp sharing
-- Vercel serverless API with no npm dependencies
-- Supabase database + optional Resend confirmation email
+- name, email and country are optional;
+- no account or password;
+- random `HttpOnly`, `Secure`, `SameSite=Lax` session cookie;
+- only an HMAC of the session is stored;
+- raw IP addresses are never stored; a daily rotating HMAC is used as one anti-abuse signal;
+- User-Agent HMAC + request velocity + optional email contribute to a risk score;
+- `accepted`, `pending` and rejected attempts are treated separately;
+- the public counter includes only `accepted` signatures;
+- campaign updates require a separate opt-in and are never implied by providing an email.
 
-## Verified factual basis
+## Repository layout
 
-- Official Ballon d'Or history lists 2020 as “No Ballon d'Or”:
-  https://ballondor.com/winners?category=history-text
-- UEFA records 55 goals in 47 Bayern matches in 2019/20, including 15 Champions League goals, as Bayern won the treble:
-  https://www.uefa.com/uefachampionsleague/news/0261-1065a2b7cf1c-c4b22a7d12f9-1000--men-s-player-of-the-year/
-- FIFA named Lewandowski The Best FIFA Men's Player 2020:
-  https://inside.fifa.com/en/media-releases/en/news/lucy-bronze-and-robert-lewandowski-are-the-best-of-2020
+- `index.html`, `styles.css`, `script.js` — public site
+- `api/` — Vercel proxy routes only; no Supabase admin secret
+- `supabase/functions/petition-api/` — privileged signing API
+- `supabase/migrations/` — migrations already applied to the production Supabase project
+- `db/schema.sql` — convenience entrypoint for a fresh psql install
 
-## Launch setup
+## Production state
 
-1. Create a Supabase project and run `db/schema.sql`. If the original prototype schema was already installed, run `db/migrate-v1-to-v2.sql` instead.
-2. Add the variables from `.env.example` to Vercel.
-3. Generate a long random `HASH_SALT` and never expose it to browser code.
-4. If email confirmation is wanted, configure Resend and set `RESEND_API_KEY` + `PETITION_FROM_EMAIL`.
-5. If adaptive bot challenges are wanted, create a Cloudflare Turnstile widget and set `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY`.
-6. Set `SITE_URL` to the final production URL.
-7. Complete `privacy.html` with the campaign operator's real identity/contact details before public collection.
-8. Deploy to Vercel.
+Supabase project: `give-lewy-2020` (`tnbxlcumokajylirydvu`, `eu-central-2`).
 
-## Counter integrity
+The database starts at **0 accepted signatures**. A real integration test was run: the first controlled signature was accepted, a duplicate from the same session was rejected with `409 already_signed`, the counter trigger incremented to 1, and the test row was then deleted so the counter returned to 0.
 
-The counter starts at **0**. It counts only rows with `status='accepted'`.
+## Optional services
 
-Email confirmation is a strong trust signal, but it is deliberately **not mandatory**. This avoids the mental friction of an email gate while keeping abuse controls server-side.
+The core petition works without these integrations. To enable them, add secrets to the **Supabase Edge Function**, not to the browser:
 
-## Risk model
+- `RESEND_API_KEY` + `PETITION_FROM_EMAIL` for email confirmation/deletion links;
+- `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` for adaptive Cloudflare Turnstile challenges.
 
-The current implementation combines request velocity, daily IP HMAC, session HMAC, User-Agent HMAC and optional email/Turnstile verification. Treat the numeric thresholds as a starting point, not permanent truth. At scale, review false positives and tune them from real traffic.
+Supabase automatically injects `SUPABASE_URL` and `SUPABASE_SECRET_KEYS`. Never commit or expose those secret keys.
 
-## Before a large launch
+## Privacy / launch checklist
 
-Add monitoring, database backups, a public methodology page, abuse-review tooling, retention rules, a real campaign contact/legal entity, and dashboards that compare accepted, pending, rejected and email-confirmed signatures. At sustained high request volume, move velocity/rate-limit counters from Postgres to Redis or an edge/WAF layer; Postgres should remain the durable source of truth, not the hot-path rate limiter.
+Before broad public promotion, complete `privacy.html` with the real campaign operator identity/contact, choose a retention policy, and decide whether to enable email delivery. Add monitoring and abuse-review tooling before sustained high traffic.
+
+## Factual basis
+
+- Ballon d'Or history: https://ballondor.com/winners?category=history-text
+- UEFA 2019/20 season: https://www.uefa.com/uefachampionsleague/news/0261-1065a2b7cf1c-c4b22a7d12f9-1000--men-s-player-of-the-year/
+- FIFA The Best 2020: https://inside.fifa.com/en/media-releases/en/news/lucy-bronze-and-robert-lewandowski-are-the-best-of-2020
