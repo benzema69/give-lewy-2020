@@ -16,10 +16,24 @@
       ]
     },
     {
+      "source": "/",
+      "headers": [
+        { "key": "Link", "value": "<https://give-lewy-2020.vercel.app/>; rel=\"canonical\"" },
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
       "source": "/admin(.*)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
         { "key": "Cache-Control", "value": "private, no-store" }
+      ]
+    },
+    {
+      "source": "/api/health",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" },
+        { "key": "X-Robots-Tag", "value": "noindex" }
       ]
     }
   ]
