@@ -12,6 +12,12 @@ Independent fan-led petition asking the Ballon d'Or organisers to consider an ex
 
 The healthcheck exposes only operational state: backend version, database reachability, accepted counter and whether optional email / Turnstile services are configured. It exposes no secret, email, name or IP.
 
+## Developer handoff
+
+Read **`DEVELOPER_GUIDE.md`** for the full architecture and project history, including the duplicate-signature cookie incident, Supabase/Vercel trust boundaries, database model, anti-abuse logic, referral/source semantics, build/deployment model, QA history, technical debt and 100M-scale roadmap.
+
+Use **`OPERATIONS.md`** for launch-day checks, incidents and rollback.
+
 ## Architecture
 
 - **Vercel** serves static HTML/CSS/JS from CDN and thin Node proxy routes under `/api/*`.
@@ -27,6 +33,8 @@ The healthcheck exposes only operational state: backend version, database reacha
 - Name, email and country are optional; no account or password is required.
 - Post-sign viral flow generates a personal referral link and offers native share, WhatsApp, X and copy-link actions.
 - Campaign source attribution supports `utm_source`, `source`, external referrers and personal `?ref=` codes without installing an advertising tracker.
+- Share-channel attribution distinguishes `share_whatsapp`, `share_x`, `share_copy` and `share_native` while preserving `ref` and milestone `goal` parameters.
+- QR/offline campaigns can use explicit first-party URLs such as `?source=qr_poster` or `?source=qr_stadium`.
 - `/press` contains the press / creator kit.
 
 ## Signing and anti-abuse model
@@ -74,6 +82,7 @@ Temporary QA Vercel projects are neutralised after testing; former test routes r
 - `/robots.txt` allows the public petition and excludes `/admin` + `/api/`.
 - `/sitemap.xml` lists the public petition and privacy page.
 - `/admin` is `noindex, nofollow` and `private, no-store`.
+- A site-wide prelaunch `X-Robots-Tag: noindex, nofollow` is currently active and must only be removed deliberately at public launch.
 - The current canonical URL is the Vercel domain and must be changed when the final campaign domain is attached.
 
 ## External services still to activate
@@ -93,6 +102,8 @@ If Turnstile is not configured, suspicious traffic is not falsely treated as ver
 - Add the final campaign domain and campaign email addresses.
 - Replace the temporary prelaunch contact placeholders in the press and privacy pages.
 - Update canonical, sitemap and robots URLs to the final domain.
+- Verify share-channel/source attribution in the aggregate admin dashboard.
+- Remove global `noindex, nofollow` only after the final launch gate passes.
 - Run the checklist in `OPERATIONS.md`.
 
 ## Repository layout
@@ -100,13 +111,16 @@ If Turnstile is not configured, suspicious traffic is not falsely treated as ver
 - `index.html`, `styles.css`, `script.js` — public site core
 - `season.css`, `season.js` — 2019/20 documentary section
 - `launch.css`, `launch.js` — PL/DE, attribution, referral and viral post-sign flow
+- `viral.css`, `viral.js` — milestone momentum and milestone-aware sharing
+- `attribution.js` — X / WhatsApp / copy / native-share channel tagging
 - `admin.html`, `admin.js` — private aggregate dashboard
 - `press.html`, `PRESS-KIT.md` — press / creator kit
-- `api/` — Vercel proxy / health routes; no database admin secret
+- `api/` — Vercel proxy / health / OG routes; no database admin secret
 - `supabase/functions/petition-api/` — privileged signing API
 - `db/schema.sql` — fresh-install base schema
 - `db/migrations/` — incremental production migrations
 - `build.js`, `package.json`, `vercel.json` — reproducible Vercel build configuration
+- `DEVELOPER_GUIDE.md` — detailed developer handoff and full project history
 - `OPERATIONS.md` — launch and incident runbook
 
 ## Factual basis
